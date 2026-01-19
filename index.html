@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aquarium GH Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Aquarium GH Calculator</h1>
+
+<section>
+  <h2>Tank Profile</h2>
+  <input id="tankName" placeholder="Tank name" />
+  <button onclick="addTank()">Save Tank</button>
+  <select id="tankSelect" onchange="loadTank()"></select>
+</section>
+
+<section>
+  <h2>GH Input</h2>
+  <input id="tds" type="number" placeholder="TDS (ppm)" />
+  <input id="kh" type="number" placeholder="KH (dKH)" />
+  <button onclick="calculateGH()">Calculate & Save</button>
+  <p id="result"></p>
+</section>
+
+<section>
+  <h2>GH History</h2>
+  <canvas id="ghChart"></canvas>
+  <button onclick="clearGraph()">Clear Graph</button>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
