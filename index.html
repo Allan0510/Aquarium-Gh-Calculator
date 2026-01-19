@@ -4,26 +4,24 @@
   <meta charset="UTF-8" />
   <title>Aquarium GH Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 <main>
+
 <h1>Aquarium GH Calculator</h1>
 
 <p class="note">
-  ⚠️ Measure TDS within 15–30 minutes after a water change.
-  Post-fertilization TDS makes GH estimation invalid.
+  ⚠️ Measure TDS within 15–30 minutes after water change.
+  Fertilizers invalidate GH estimation.
 </p>
 
 <section class="card">
   <h2>Tank Profile</h2>
   <input id="tankName" placeholder="Tank name" />
-  <div class="row">
-    <button onclick="addTank()">Save Tank</button>
-    <button class="danger" onclick="deleteTank()">Delete Tank</button>
-  </div>
+  <button onclick="addTank()">Save Tank</button>
   <select id="tankSelect" onchange="loadTank()"></select>
 </section>
 
@@ -38,10 +36,10 @@
 <section class="card">
   <h2>GH History</h2>
   <canvas id="ghChart"></canvas>
-  <button class="danger" onclick="clearHistory()">Clear History</button>
+  <button class="danger" onclick="clearGraph()">Clear Graph</button>
 </section>
 
-<script src="script.js"></script>
 </main>
+<script src="script.js"></script>
 </body>
 </html>
