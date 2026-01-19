@@ -1,79 +1,101 @@
-const STORAGE_KEY = "ghAppData";
-let chart;
+let tanks = JSON.parse(localStorage.getItem("tanks")) || {};
+let currentTank = null;
+let chart = null;
 
-const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-  tanks: {},
-  activeTank: null
-};
+const tankSelect = document.getElementById("tankSelect");
+const result = document.getElementById("result");
 
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+/* ---------- Tank Management ---------- */
+
+function saveTanks() {
+  localStorage.setItem("tanks", JSON.stringify(tanks));
+}
+
+function refreshTankList() {
+  tankSelect.innerHTML = "<option value=''>Select tank</option>";
+  Object.keys(tanks).forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    tankSelect.appendChild(option);
+  });
 }
 
 function addTank() {
   const name = document.getElementById("tankName").value.trim();
   if (!name) return;
 
-  if (!data.tanks[name]) {
-    data.tanks[name] = [];
+  if (!tanks[name]) {
+    tanks[name] = [];
+    saveTanks();
+    refreshTankList();
   }
 
-  data.activeTank = name;
-  saveData();
-  populateTankSelect();
+  tankSelect.value = name;
   loadTank();
 }
 
-function populateTankSelect() {
-  const select = document.getElementById("tankSelect");
-  select.innerHTML = "";
+function deleteTank() {
+  if (!currentTank) return;
+  if (!confirm(`Delete tank "${currentTank}" and all its data?`)) return;
 
-  Object.keys(data.tanks).forEach(tank => {
-    const opt = document.createElement("option");
-    opt.value = tank;
-    opt.textContent = tank;
-    select.appendChild(opt);
-  });
-
-  if (data.activeTank) {
-    select.value = data.activeTank;
-  }
+  delete tanks[currentTank];
+  currentTank = null;
+  saveTanks();
+  refreshTankList();
+  clearChart();
+  result.textContent = "";
 }
+
+/* ---------- Load Tank ---------- */
 
 function loadTank() {
-  data.activeTank = document.getElementById("tankSelect").value;
-  saveData();
-  updateChart();
+  currentTank = tankSelect.value;
+  if (!currentTank) return;
+  renderChart();
 }
+
+/* ---------- GH Calculation ---------- */
 
 function calculateGH() {
-  const tds = Number(document.getElementById("tds").value);
-  const kh = Number(document.getElementById("kh").value);
+  if (!currentTank) {
+    result.textContent = "Select or create a tank first.";
+    return;
+  }
 
-  if (!data.activeTank || tds <= 0) return;
+  const tds = parseFloat(document.getElementById("tds").value);
+  const kh = parseFloat(document.getElementById("kh").value);
 
-  const gh = (tds - (kh * 25)) / 25;
-  const ghRounded = Math.max(0, gh.toFixed(2));
+  if (isNaN(tds) || isNaN(kh) || tds < 0 || kh < 0) {
+    result.textContent = "Enter valid TDS and KH values.";
+    return;
+  }
 
-  const entry = {
+  const gh = (tds - kh * 25) / 25;
+
+  if (gh < 0) {
+    result.textContent = "Calculated GH is negative. Check inputs.";
+    return;
+  }
+
+  tanks[currentTank].push({
     date: new Date().toLocaleDateString(),
-    gh: ghRounded
-  };
+    gh: Number(gh.toFixed(2))
+  });
 
-  data.tanks[data.activeTank].push(entry);
-  saveData();
+  saveTanks();
+  renderChart();
 
-  document.getElementById("result").textContent =
-    `GH: ${ghRounded} dGH`;
-
-  updateChart();
+  result.textContent = `Estimated GH: ${gh.toFixed(2)} dGH`;
 }
 
-function updateChart() {
-  const tankData = data.tanks[data.activeTank] || [];
+/* ---------- Chart ---------- */
 
-  const labels = tankData.map(e => e.date);
-  const values = tankData.map(e => e.gh);
+function renderChart() {
+  const data = tanks[currentTank];
+
+  const labels = data.map(d => d.date);
+  const values = data.map(d => d.gh);
 
   if (chart) chart.destroy();
 
@@ -84,18 +106,31 @@ function updateChart() {
       datasets: [{
         label: "GH (dGH)",
         data: values,
-        tension: 0.3
+        borderWidth: 2,
+        tension: 0.3,
+        fill: false
       }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
     }
   });
 }
 
-function clearGraph() {
-  if (!data.activeTank) return;
-  data.tanks[data.activeTank] = [];
-  saveData();
-  updateChart();
+function clearChart() {
+  if (chart) chart.destroy();
 }
 
-populateTankSelect();
-if (data.activeTank) loadTank();
+function clearHistory() {
+  if (!currentTank) return;
+  tanks[currentTank] = [];
+  saveTanks();
+  clearChart();
+}
+
+/* ---------- Init ---------- */
+
+refreshTankList();
