@@ -5,14 +5,24 @@ let chart = null;
 const tankSelect = document.getElementById("tankSelect");
 const result = document.getElementById("result");
 
-/* ---------- Tank Management ---------- */
+/* ---------- Helpers ---------- */
 
 function saveTanks() {
   localStorage.setItem("tanks", JSON.stringify(tanks));
 }
 
+function resetInputs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+}
+
+/* ---------- Tank Management ---------- */
+
 function refreshTankList() {
   tankSelect.innerHTML = "<option value=''>Select tank</option>";
+
   Object.keys(tanks).forEach(name => {
     const option = document.createElement("option");
     option.value = name;
@@ -33,6 +43,9 @@ function addTank() {
 
   tankSelect.value = name;
   loadTank();
+
+  // ✅ auto reset tank name input
+  resetInputs(["tankName"]);
 }
 
 function deleteTank() {
@@ -52,6 +65,7 @@ function deleteTank() {
 function loadTank() {
   currentTank = tankSelect.value;
   if (!currentTank) return;
+
   renderChart();
 }
 
@@ -87,12 +101,15 @@ function calculateGH() {
   renderChart();
 
   result.textContent = `Estimated GH: ${gh.toFixed(2)} dGH`;
+
+  // ✅ auto reset TDS & KH inputs
+  resetInputs(["tds", "kh"]);
 }
 
 /* ---------- Chart ---------- */
 
 function renderChart() {
-  const data = tanks[currentTank];
+  const data = tanks[currentTank] || [];
 
   const labels = data.map(d => d.date);
   const values = data.map(d => d.gh);
@@ -121,14 +138,19 @@ function renderChart() {
 }
 
 function clearChart() {
-  if (chart) chart.destroy();
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
 }
 
 function clearHistory() {
   if (!currentTank) return;
+
   tanks[currentTank] = [];
   saveTanks();
   clearChart();
+  result.textContent = "";
 }
 
 /* ---------- Init ---------- */
