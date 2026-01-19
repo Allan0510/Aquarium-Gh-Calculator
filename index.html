@@ -2,45 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Aquarium GH Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aquarium GH Calculator</title>
 
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <div class="app">
 
-<h1>Aquarium GH Calculator</h1>
+    <h1>Aquarium GH Calculator</h1>
 
-<p class="note">
-  ⚠️ Measure TDS within 15–30 minutes after a water change.
-  Post-fertilization TDS makes GH estimation invalid.
-</p>
+    <!-- Tank Section -->
+    <section class="card">
+      <h2>Tank Profile</h2>
 
-<section class="card">
-  <h2>Tank Profile</h2>
-  <input id="tankName" placeholder="Tank name" />
-  <div class="row">
-    <button onclick="addTank()">Save Tank</button>
-    <button class="danger" onclick="deleteTank()">Delete Tank</button>
+      <input id="tankName" type="text" placeholder="Tank name" />
+      <button onclick="addTank()">Save Tank</button>
+
+      <select id="tankSelect" onchange="loadTank()">
+        <option value="">Select tank</option>
+      </select>
+
+      <button class="danger" onclick="deleteTank()">Delete Tank</button>
+    </section>
+
+    <!-- GH Input -->
+    <section class="card">
+      <h2>GH Input</h2>
+
+      <input id="tds" type="number" placeholder="TDS (ppm)" />
+      <input id="kh" type="number" placeholder="KH (dKH)" />
+
+      <button onclick="calculateGH()">Calculate & Save</button>
+
+      <p id="result" class="result"></p>
+    </section>
+
+    <!-- Chart -->
+    <section class="card">
+      <h2>GH History</h2>
+
+      <canvas id="ghChart"></canvas>
+
+      <button class="danger" onclick="clearHistory()">Clear History</button>
+    </section>
+
   </div>
-  <select id="tankSelect" onchange="loadTank()"></select>
-</section>
 
-<section class="card">
-  <h2>GH Input</h2>
-  <input id="tds" type="number" placeholder="TDS (ppm)" />
-  <input id="kh" type="number" placeholder="KH (dKH)" />
-  <button onclick="calculateGH()">Calculate & Save</button>
-  <p id="result"></p>
-</section>
-
-<section class="card">
-  <h2>GH History</h2>
-  <canvas id="ghChart"></canvas>
-  <button class="danger" onclick="clearHistory()">Clear History</button>
-</section>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
